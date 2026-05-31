@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BizPulse — Track. Manage. Grow.</title>
+<style>
+  /* ─── RESET & BASE ───────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0d0d10;
+    --card:      #17171d;
+    --card2:     #1c1c24;
+    --border:    #26262d;
+    --border2:   #32323c;
+    --text:      #f4f1ea;
+    --muted:     #b7b3aa;
+    --dim:       #6e6b66;
+    --accent:    #ff5b1f;
+    --accent2:   #ff7a45;
+    --success:   #2ecc71;
+    --warning:   #f39c12;
+    --danger:    #e74c3c;
+    --r-sm:      8px;
+    --r-md:      14px;
+    --r-lg:      22px;
+    --r-xl:      32px;
+    --shadow:    0 4px 32px rgba(0,0,0,.55);
+    --shadow-lg: 0 12px 64px rgba(0,0,0,.7);
+    --glow:      0 0 40px rgba(255,91,31,.18);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ─── TYPOGRAPHY ─────────────────────────────────────────── */
+  h1, h2, h3, h4 { font-family: Georgia, 'Times New Roman', serif; line-height: 1.15; letter-spacing: -.02em; }
+
+  /* ─── SCROLLBAR ──────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* ─── NAV ────────────────────────────────────────────────── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 clamp(20px, 5vw, 80px);
+    height: 64px;
+    background: rgba(13,13,16,.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    transition: background .3s;
+  }
+  .nav-logo { font-family: Georgia, serif; font-size: 1.35rem; font-weight: 700; letter-spacing: -.03em; color: var(--text); }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: .9rem; letter-spacing: .01em; transition: color .2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta { display: flex; gap: 12px; align-items: center; }
+  .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+  .nav-hamburger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: .3s; }
+
+  @media (max-width: 768px) {
+    .nav-links, .nav-cta { display: none; }
+    .nav-hamburger { display: flex; }
+    nav.open .nav-links {
+      display: flex; flex-direction: column; position: absolute;
+      top: 64px; left: 0; right: 0;
+      background: var(--card); border-bottom: 1px solid var(--border);
+      padding: 20px clamp(20px, 5vw, 40px); gap: 20px;
+    }
+    nav.open .nav-cta {
+      display: flex; flex-direction: column; position: absolute;
+      top: calc(64px + 180px); left: 0; right: 0;
+      background: var(--card); border-bottom: 1px solid var(--border);
+      padding: 16px clamp(20px, 5vw, 40px) 24px;
+    }
+  }
+
+  /* ─── BUTTONS ────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 12px 28px; border-radius: var(--r-sm);
+    font-size: .95rem; font-weight: 600; letter-spacing: .01em;
+    cursor: pointer; text-decoration: none; transition: all .22s cubic-bezier(.4,0,.2,1);
+    border: none; outline: none;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--accent); color: #fff;
+    box-shadow: 0 4px 20px rgba(255,91,31,.35);
+  }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(255,91,31,.5); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-ghost {
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border2);
+  }
+  .btn-ghost:hover { border-color: var(--muted); background: rgba(255,255,255,.04); transform: translateY(-1px); }
+
+  .btn-sm { padding: 9px 20px; font-size: .85rem; }
+  .btn-lg { padding: 16px 40px; font-size: 1.05rem; }
+
+  /* ─── SECTION WRAPPER ────────────────────────────────────── */
+  section { padding: clamp(60px, 10vw, 120px) clamp(20px, 5vw, 80px); }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  .section-label {
+    display: inline-block;
+    font-size: .75rem; font-weight: 700; letter-spacing: .15em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .section-title { font-size: clamp(2rem, 5vw, 3.2rem); color: var(--text); margin-bottom: 16px; }
+  .section-sub { font-size: clamp(.95rem, 2vw, 1.1rem); color: var(--muted); max-width: 560px; line-height: 1.7; }
+  .section-header { margin-bottom: clamp(40px, 6vw, 70px); }
+  .section-header.center { text-align: center; }
+  .section-header.center .section-sub { margin: 0 auto; }
+
+  /* ─── HERO ───────────────────────────────────────────────── */
+  #hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding-top: 80px;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255,91,31,.12) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(255,91,31,.06) 0%, transparent 60%);
+  }
+  .hero-grid-lines {
+    position: absolute; inset: 0; z-index: 0; opacity: .04;
+    background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .hero-content { position: relative; z-index: 1; text-align: center; width: 100%; }
+
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,91,31,.1); border: 1px solid rgba(255,91,31,.25);
+    border-radius: 100px; padding: 6px 16px;
+    font-size: .8rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 28px;
+  }
+  .hero-eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .5; transform: scale(1.3); } }
+
+  .hero-title {
+    font-size: clamp(3rem, 9vw, 7rem);
+    letter-spacing: -.04em; line-height: 1.0;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .hero-title .accent { color: var(--accent); }
+
+  .hero-tagline {
+    font-family: Georgia, serif;
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    color: var(--muted); font-style: italic;
+    letter-spacing: .04em; margin-bottom: 24px;
+  }
+
+  .hero-desc {
+    font-size: clamp(.95rem, 2vw, 1.15rem);
+    color: var(--muted); max-width: 580px; margin: 0 auto 44px;
+    line-height: 1.75;
+  }
+
+  .hero-cta { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 72px; }
+
+  .hero-stats {
+    display: flex; justify-content: center; gap: clamp(24px, 6vw, 64px);
+    flex-wrap: wrap;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+    max-width: 700px; margin: 0 auto;
+  }
+  .stat-item { text-align: center; }
+  .stat-num { font-family: Georgia, serif; font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; color: var(--text); line-height: 1; }
+  .stat-num .accent { color: var(--accent); }
+  .stat-label { font-size: .8rem; color: var(--dim); letter-spacing: .08em; text-transform: uppercase; margin-top: 4px; }
+
+  /* ─── VALUE PROPS ────────────────────────────────────────── */
+  #value { background: linear-gradient(180deg, var(--bg) 0%, #0f0f14 100%); }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .value-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 32px 28px;
+    transition: all .3s cubic-bezier(.4,0,.2,1);
+    position: relative; overflow: hidden;
+  }
+  .value-card::before {
+    content: ''; position: absolute; inset: 0; border-radius: var(--r-lg);
+    background: linear-gradient(135deg, rgba(255,91,31,.06) 0%, transparent 60%);
+    opacity: 0; transition: opacity .3s;
+  }
+  .value-card:hover { border-color: rgba(255,91,31,.3); transform: translateY(-4px); box-shadow: var(--glow); }
+  .value-card:hover::before { opacity: 1; }
+
+  .card-icon {
+    width: 48px; height: 48px; border-radius: var(--r-sm);
+    background: rgba(255,91,31,.12); border: 1px solid rgba(255,91,31,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; margin-bottom: 20px;
+  }
+  .card-title { font-family: Georgia, serif; font-size: 1.2rem; color: var(--text); margin-bottom: 10px; }
+  .card-desc { font-size: .9rem; color: var(--muted); line-height: 1.65; }
+
+  /* ─── WHY BIZPULSE ───────────────────────────────────────── */
+  #why {
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .why-item {
+    display: flex; align-items: flex-start; gap: 16px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--r-md); padding: 22px 20px;
+    transition: all .25s;
+  }
+  .why-item:hover { border-color: rgba(255,91,31,.3); transform: translateX(4px); }
+  .why-check {
+    flex-shrink: 0;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(46,204,113,.12); border: 1px solid rgba(46,204,113,.25);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--success); font-size: .85rem; font-weight: 700;
+  }
+  .why-text strong { display: block; font-size: .95rem; color: var(--text); margin-bottom: 4px; }
+  .why-text span { font-size: .82rem; color: var(--muted); line-height: 1.5; }
+
+  /* ─── PRICING ────────────────────────────────────────────── */
+  #pricing { background: var(--bg); }
+  .pricing-toggle {
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    margin-bottom: 48px;
+  }
+  .toggle-label { font-size: .9rem; color: var(--muted); }
+  .toggle-label.active { color: var(--text); font-weight: 600; }
+  .toggle-switch {
+    width: 44px; height: 24px; background: var(--border2);
+    border-radius: 100px; cursor: pointer; position: relative; transition: background .3s;
+  }
+  .toggle-switch.on { background: var(--accent); }
+  .toggle-switch::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 18px; height: 18px; background: #fff;
+    border-radius: 50%; transition: transform .3s;
+  }
+  .toggle-switch.on::after { transform: translateX(20px); }
+  .toggle-badge {
+    background: rgba(46,204,113,.12); border: 1px solid rgba(46,204,113,.25);
+    color: var(--success); font-size: .72rem; font-weight: 700; letter-spacing: .05em;
+    text-transform: uppercase; border-radius: 100px; padding: 3px 10px;
+  }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    align-items: start;
+  }
+
+  .pricing-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--r-xl); padding: 36px 32px;
+    position: relative; overflow: hidden;
+    transition: all .3s cubic-bezier(.4,0,.2,1);
+  }
+  .pricing-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+
+  .pricing-card.popular {
+    border-color: rgba(255,91,31,.4);
+    background: linear-gradient(160deg, #1e1a17 0%, var(--card) 100%);
+    box-shadow: var(--glow);
+  }
+  .pricing-card.popular:hover { box-shadow: 0 0 60px rgba(255,91,31,.28), var(--shadow-lg); }
+
+  .popular-badge {
+    position: absolute; top: 20px; right: 20px;
+    background: var(--accent); color: #fff;
+    font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    border-radius: 100px; padding: 4px 12px;
+  }
+
+  .plan-name { font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+  .plan-price {
+    display: flex; align-items: flex-end; gap: 4px;
+    margin-bottom: 4px;
+  }
+  .plan-price .price { font-family: Georgia, serif; font-size: clamp(2.2rem, 5vw, 3rem); color: var(--text); line-height: 1; }
+  .plan-price .period { font-size: .9rem; color: var(--muted); margin-bottom: 6px; }
+  .plan-note { font-size: .78rem; color: var(--dim); margin-bottom: 28px; line-height: 1.5; }
+
+  .plan-divider { height: 1px; background: var(--border); margin-bottom: 24px; }
+
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+  .plan-features li { display: flex; align-items: flex-start; gap: 10px; font-size: .9rem; color: var(--muted); }
+  .plan-features li .feat-icon { flex-shrink: 0; color: var(--success); font-size: .85rem; margin-top: 2px; }
+  .plan-features li.disabled { color: var(--dim); }
+  .plan-features li.disabled .feat-icon { color: var(--border2); }
+
+  /* ─── COUNTRIES ──────────────────────────────────────────── */
+  #countries { background: linear-gradient(180deg, #0f0f14 0%, var(--bg) 100%); }
+  .phases-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+  .phase-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 28px 24px;
+    transition: border-color .25s;
+  }
+  .phase-card:hover { border-color: var(--border2); }
+  .phase-label {
+    font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+  }
+  .phase-label.active { color: var(--accent); }
+  .phase-label.soon { color: var(--warning); }
+  .phase-label.future { color: var(--dim); }
+  .phase-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .country-list { display: flex; flex-direction: column; gap: 10px; }
+  .country-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: var(--r-sm);
+    background: rgba(255,255,255,.03); border: 1px solid var(--border);
+    transition: background .2s;
+  }
+  .country-item:hover { background: rgba(255,255,255,.06); }
+  .country-flag { font-size: 1.4rem; line-height: 1; }
+  .country-info strong { display: block; font-size: .9rem; color: var(--text); }
+  .country-info span { font-size: .75rem; color: var(--dim); }
+
+  /* ─── PRODUCT PREVIEW ────────────────────────────────────── */
+  #preview { background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .preview-wrapper {
+    position: relative;
+    max-width: 860px; margin: 0 auto;
+  }
+  .preview-glow {
+    position: absolute; inset: -30px;
+    background: radial-gradient(ellipse at 50% 50%, rgba(255,91,31,.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .phone-frame {
+    background: #0d0d10;
+    border: 2px solid var(--border2);
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg), 0 0 80px rgba(0,0,0,.6);
+    max-width: 400px; margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+  .phone-statusbar {
+    background: #111116; padding: 10px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .statusbar-time { font-size: .75rem; font-weight: 700; color: var(--text); }
+  .statusbar-icons { font-size: .75rem; color: var(--text); display: flex; gap: 6px; }
+
+  .phone-screen { padding: 20px; background: var(--bg); }
+
+  .app-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .app-logo { font-family: Georgia, serif; font-size: 1.1rem; font-weight: 700; }
+  .app-logo span { color: var(--accent); }
+  .app-notif {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--card); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .9rem; position: relative;
+  }
+  .app-notif-dot { position: absolute; top: 4px; right: 4px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+
+  .app-greeting { font-size: .8rem; color: var(--dim); margin-bottom: 2px; }
+  .app-greeting-name { font-family: Georgia, serif; font-size: 1.15rem; color: var(--text); margin-bottom: 20px; }
+
+  .metric-cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .metric-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--r-md); padding: 16px 14px;
+  }
+  .metric-card.full { grid-column: 1/-1; }
+  .metric-label { font-size: .7rem; color: var(--dim); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 6px; }
+  .metric-val { font-family: Georgia, serif; font-size: 1.4rem; color: var(--text); }
+  .metric-val.green { color: var(--success); }
+  .metric-trend { font-size: .72rem; margin-top: 4px; }
+  .metric-trend.up { color: var(--success); }
+  .metric-trend.down { color: var(--danger); }
+
+  .chart-placeholder {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--r-md); padding: 16px; margin-bottom: 16px;
+  }
+  .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .chart-title { font-size: .78rem; color: var(--muted); font-weight: 600; }
+  .chart-period { font-size: .7rem; color: var(--dim); background: rgba(255,255,255,.04); padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border); }
+  .chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 60px; }
+  .chart-bar {
+    flex: 1; border-radius: 3px 3px 0 0;
+    background: rgba(255,91,31,.25);
+    transition: background .2s;
+  }
+  .chart-bar.active { background: var(--accent); }
+  .chart-bar:hover { background: var(--accent2); }
+
+  .ai-insight-card {
+    background: linear-gradient(135deg, rgba(255,91,31,.08) 0%, rgba(255,91,31,.03) 100%);
+    border: 1px solid rgba(255,91,31,.2);
+    border-radius: var(--r-md); padding: 14px;
+    margin-bottom: 12px;
+  }
+  .ai-insight-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .ai-icon { font-size: .9rem; }
+  .ai-label { font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  .ai-text { font-size: .8rem; color: var(--muted); line-height: 1.5; }
+
+  .alert-card {
+    background: rgba(243,156,18,.06); border: 1px solid rgba(243,156,18,.2);
+    border-radius: var(--r-md); padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .alert-icon { font-size: 1rem; }
+  .alert-text { font-size: .78rem; color: var(--muted); }
+  .alert-text strong { color: var(--warning); }
+
+  /* desktop preview overlay */
+  @media (min-width: 768px) {
+    .preview-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; max-width: 1000px; }
+    .phone-frame { max-width: none; }
+    .preview-info { order: -1; }
+    .preview-info .section-title { font-size: 2.2rem; }
+    .preview-features { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-top: 28px; }
+    .preview-features li { display: flex; align-items: flex-start; gap: 12px; font-size: .92rem; color: var(--muted); }
+    .preview-features li::before { content: '→'; color: var(--accent); flex-shrink: 0; font-weight: 700; }
+  }
+
+  /* ─── FINAL CTA ───────────────────────────────────────────── */
+  #final-cta {
+    text-align: center;
+    background: linear-gradient(160deg, #141418 0%, var(--bg) 100%);
+    position: relative; overflow: hidden;
+  }
+  #final-cta::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(255,91,31,.1) 0%, transparent 60%);
+  }
+  .cta-content { position: relative; z-index: 1; }
+  .cta-title { font-size: clamp(2rem, 6vw, 4rem); color: var(--text); margin-bottom: 20px; }
+  .cta-desc { font-size: clamp(.95rem, 2vw, 1.1rem); color: var(--muted); max-width: 520px; margin: 0 auto 40px; line-height: 1.7; }
+  .cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+  /* ─── FOOTER ─────────────────────────────────────────────── */
+  footer {
+    background: var(--card); border-top: 1px solid var(--border);
+    padding: 48px clamp(20px, 5vw, 80px) 32px;
+  }
+  .footer-inner { max-width: 1200px; margin: 0 auto; }
+  .footer-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    flex-wrap: wrap; gap: 32px; margin-bottom: 40px;
+  }
+  .footer-brand .logo { font-family: Georgia, serif; font-size: 1.4rem; font-weight: 700; }
+  .footer-brand .logo span { color: var(--accent); }
+  .footer-brand .tagline { font-size: .85rem; color: var(--dim); margin-top: 4px; font-style: italic; }
+  .footer-brand p { font-size: .85rem; color: var(--muted); max-width: 260px; margin-top: 12px; line-height: 1.6; }
+
+  .footer-links-col h4 { font-size: .8rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); margin-bottom: 16px; }
+  .footer-links-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-links-col a { font-size: .875rem; color: var(--muted); text-decoration: none; transition: color .2s; }
+  .footer-links-col a:hover { color: var(--text); }
+
+  .footer-bottom {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .footer-bottom p { font-size: .8rem; color: var(--dim); }
+  .footer-bottom-links { display: flex; gap: 20px; }
+  .footer-bottom-links a { font-size: .8rem; color: var(--dim); text-decoration: none; transition: color .2s; }
+  .footer-bottom-links a:hover { color: var(--muted); }
+
+  /* ─── ANIMATIONS ─────────────────────────────────────────── */
+  .fade-in { opacity: 0; transform: translateY(24px); transition: opacity .6s cubic-bezier(.4,0,.2,1), transform .6s cubic-bezier(.4,0,.2,1); }
+  .fade-in.visible { opacity: 1; transform: none; }
+  .fade-in-delay-1 { transition-delay: .1s; }
+  .fade-in-delay-2 { transition-delay: .2s; }
+  .fade-in-delay-3 { transition-delay: .3s; }
+  .fade-in-delay-4 { transition-delay: .4s; }
+  .fade-in-delay-5 { transition-delay: .5s; }
+
+  /* stagger children */
+  .stagger-children > * { opacity: 0; transform: translateY(20px); transition: opacity .5s, transform .5s; }
+  .stagger-children.visible > *:nth-child(1) { opacity: 1; transform: none; transition-delay: 0s; }
+  .stagger-children.visible > *:nth-child(2) { opacity: 1; transform: none; transition-delay: .08s; }
+  .stagger-children.visible > *:nth-child(3) { opacity: 1; transform: none; transition-delay: .16s; }
+  .stagger-children.visible > *:nth-child(4) { opacity: 1; transform: none; transition-delay: .24s; }
+  .stagger-children.visible > *:nth-child(5) { opacity: 1; transform: none; transition-delay: .32s; }
+  .stagger-children.visible > *:nth-child(6) { opacity: 1; transform: none; transition-delay: .40s; }
+  .stagger-children.visible > *:nth-child(7) { opacity: 1; transform: none; transition-delay: .48s; }
+  .stagger-children.visible > *:nth-child(8) { opacity: 1; transform: none; transition-delay: .56s; }
+
+  /* ─── MISC UTILITIES ─────────────────────────────────────── */
+  .text-accent { color: var(--accent); }
+  .text-muted  { color: var(--muted); }
+  .text-dim    { color: var(--dim); }
+  .mb-8  { margin-bottom: 8px; }
+  .mb-12 { margin-bottom: 12px; }
+  .mb-16 { margin-bottom: 16px; }
+  .mb-24 { margin-bottom: 24px; }
+  .mb-32 { margin-bottom: 32px; }
+
+  /* Mobile fixes */
+  @media (max-width: 480px) {
+    .pricing-grid { grid-template-columns: 1fr; }
+    .pricing-card.popular { order: -1; }
+    .hero-stats { gap: 24px; }
+    .metric-cards-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     NAV
+══════════════════════════════════════════════════════════════ -->
+<nav id="main-nav" role="navigation" aria-label="Main navigation">
+  <a href="#hero" class="nav-logo" aria-label="BizPulse home">Biz<span>Pulse</span></a>
+  <ul class="nav-links">
+    <li><a href="#value">Features</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#countries">Markets</a></li>
+    <li><a href="#preview">Preview</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="#pricing" class="btn btn-ghost btn-sm">View Plans</a>
+    <a href="#pricing" class="btn btn-primary btn-sm">Start Free</a>
+  </div>
+  <div class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" role="button" tabindex="0">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     S1 — HERO
+══════════════════════════════════════════════════════════════ -->
+<section id="hero" aria-labelledby="hero-title">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-grid-lines" aria-hidden="true"></div>
+  <div class="hero-content container">
+    <div class="hero-eyebrow" role="status">
+      <span class="hero-eyebrow-dot"></span>
+      Now live in Nigeria, Ghana, Kenya &amp; South Africa
+    </div>
+    <h1 class="hero-title fade-in" id="hero-title">Biz<span class="accent">Pulse</span></h1>
+    <p class="hero-tagline fade-in fade-in-delay-1">Track. Manage. Grow.</p>
+    <p class="hero-desc fade-in fade-in-delay-2">
+      Track sales, manage stock, receive AI-powered business insights, and grow your business from anywhere — even offline.
+    </p>
+    <div class="hero-cta fade-in fade-in-delay-3">
+      <a href="#pricing" class="btn btn-primary btn-lg">Start Free</a>
+      <a href="#pricing" class="btn btn-ghost btn-lg">View Plans</a>
+    </div>
+    <div class="hero-stats fade-in fade-in-delay-4">
+      <div class="stat-item">
+        <div class="stat-num">12<span class="accent">k+</span></div>
+        <div class="stat-label">Active Stores</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">4</div>
+        <div class="stat-label">Countries</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">₦<span class="accent">2B+</span></div>
+        <div class="stat-label">Sales Tracked</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">99<span class="accent">%</span></div>
+        <div class="stat-label">Uptime</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     S2 — VALUE PROPOSITIONS
+══════════════════════════════════════════════════════════════ -->
+<section id="value" aria-labelledby="value-title">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="section-label">What We Do</span>
+      <h2 class="section-title" id="value-title">Everything your business needs</h2>
+      <p class="section-sub">One platform to run your entire operation — from the sales floor to financial reports.</p>
+    </div>
+    <div class="cards-grid stagger-children" role="list">
+
+      <article class="value-card" role="listitem">
+        <div class="card-icon" aria-hidden="true">📊</div>
+        <h3 class="card-title">Sales Tracking</h3>
+        <p class="card-desc">Track every sale in real time and understand your business performance with beautiful, clear dashboards.</p>
+      </article>
+
+      <article class="value-card" role="listitem">
+        <div class="card-icon" aria-hidden="true">📦</div>
+        <h3 class="card-title">Inventory Management</h3>
+        <p class="card-desc">Monitor stock levels, prevent shortages, and manage inventory efficiently before you run out.</p>
+      </article>
+
+      <article class="value-card" role="listitem">
+        <div class="card-icon" aria-hidden="true">🤖</div>
+        <h3 class="card-title">AI Business Insights</h3>
+        <p class="card-desc">Receive intelligent recommendations to improve sales, optimize inventory, and grow profits.</p>
+      </article>
+
+      <article class="value-card" role="listitem">
+        <div class="card-icon" aria-hidden="true">💬</div>
+        <h3 class="card-title">WhatsApp Invoicing</h3>
+        <p class="card-desc">Generate professional invoices and share them instantly with customers via WhatsApp in seconds.</p>
+      </article>
+
+      <article class="value-card" role="listitem">
+        <div class="card-icon" aria-hidden="true">🏪</div>
+        <h3 class="card-title">Multi-Store Management</h3>
+        <p class="card-desc">Manage multiple branches, warehouses, or store locations from a single unified account.</p>
+      </article>
+
+      <article class="value-card" role="listitem">
+        <div class="card-icon" aria-hidden="true">📡</div>
+        <h3 class="card-title">Offline Mode</h3>
+        <p class="card-desc">Continue selling, recording transactions, and managing stock even without internet access.</p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     S3 — WHY BIZPULSE
+══════════════════════════════════════════════════════════════ -->
+<section id="why" aria-labelledby="why-title">
+  <div class="container">
+    <div class="section-header center fade-in">
+      <span class="section-label">Why BizPulse</span>
+      <h2 class="section-title" id="why-title">Built different, for you</h2>
+      <p class="section-sub">Designed from the ground up for African and emerging-market businesses — not adapted from tools built elsewhere.</p>
+    </div>
+    <div class="why-grid stagger-children">
+
+      <div class="why-item">
+        <div class="why-check" aria-hidden="true">✓</div>
+        <div class="why-text">
+          <strong>Mobile First</strong>
+          <span>Designed for smartphones. Full power from your phone, no desktop required.</span>
+        </div>
+      </div>
+
+      <div class="why-item">
+        <div class="why-check" aria-hidden="true">✓</div>
+        <div class="why-text">
+          <strong>Offline Ready</strong>
+          <span>Work without data. Sync automatically when your connection returns.</span>
+        </div>
+      </div>
+
+      <div class="why-item">
+        <div class="why-check" aria-hidden="true">✓</div>
+        <div class="why-text">
+          <strong>AI Powered</strong>
+          <span>Embedded intelligence that learns your business and surfaces insights daily.</span>
+        </div>
+      </div>
+
+      <div class="why-item">
+        <div class="why-check" aria-hidden="true">✓</div>
+        <div class="why-text">
+          <strong>Multi Currency</strong>
+          <span>Support for NGN, GHS, KES, ZAR and more — with automatic conversion rates.</span>
+        </div>
+      </div>
+
+      <div class="why-item">
+        <div class="why-check" aria-hidden="true">✓</div>
+        <div class="why-text">
+          <strong>Multi Store</strong>
+          <span>Run multiple branches from one account with separate reports for each.</span>
+        </div>
+      </div>
+
+      <div class="why-item">
+        <div class="why-check" aria-hidden="true">✓</div>
+        <div class="why-text">
+          <strong>WhatsApp Integration</strong>
+          <span>Send invoices, receipts, and reports directly to customers and staff on WhatsApp.</span>
+        </div>
+      </div>
+
+      <div class="why-item">
+        <div class="why-check" aria-hidden="true">✓</div>
+        <div class="why-text">
+          <strong>Local Payment Support</strong>
+          <span>Accept transfers, USSD, mobile money (M-Pesa, MTN MoMo), and cash seamlessly.</span>
+        </div>
+      </div>
+
+      <div class="why-item">
+        <div class="why-check" aria-hidden="true">✓</div>
+        <div class="why-text">
+          <strong>Built for Africa</strong>
+          <span>Optimized for low-bandwidth networks, local currencies, and SME operations.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     S4 — PRICING
+══════════════════════════════════════════════════════════════ -->
+<section id="pricing" aria-labelledby="pricing-title">
+  <div class="container">
+    <div class="section-header center fade-in">
+      <span class="section-label">Pricing</span>
+      <h2 class="section-title" id="pricing-title">Simple, transparent plans</h2>
+      <p class="section-sub">Start free. Upgrade when you're ready. No hidden charges, no surprises.</p>
+    </div>
+
+    <div class="pricing-toggle fade-in" role="group" aria-label="Billing period toggle">
+      <span class="toggle-label active" id="monthly-label">Monthly</span>
+      <div class="toggle-switch" id="billing-toggle" role="switch" aria-checked="false" tabindex="0" aria-labelledby="monthly-label annual-label"></div>
+      <span class="toggle-label" id="annual-label">Annual</span>
+      <span class="toggle-badge">Save 20%</span>
+    </div>
+
+    <div class="pricing-grid stagger-children" id="pricing-grid">
+
+      <!-- BASIC -->
+      <div class="pricing-card">
+        <div class="plan-name">Basic</div>
+        <div class="plan-price">
+          <span class="price" id="basic-price">Free</span>
+        </div>
+        <p class="plan-note">Always free. No credit card required.</p>
+        <div class="plan-divider"></div>
+        <ul class="plan-features" aria-label="Basic plan features">
+          <li><span class="feat-icon" aria-hidden="true">✓</span> Sales Tracking</li>
+          <li><span class="feat-icon" aria-hidden="true">✓</span> Inventory Management</li>
+          <li><span class="feat-icon" aria-hidden="true">✓</span> Limited Dashboard</li>
+          <li><span class="feat-icon" aria-hidden="true">✓</span> Limited Reports (7-day)</li>
+          <li><span class="feat-icon" aria-hidden="true">✓</span> Limited Invoice Sharing (5/mo)</li>
+          <li class="disabled"><span class="feat-icon" aria-hidden="true">✗</span> Ads Enabled</li>
+        </ul>
+        <a href="#" class="btn btn-ghost" style="width:100%; text-align:center;">Get Started</a>
+      </div>
+
+      <!-- PRO -->
+      <div class="pricing-card popular" aria-label="Most popular plan">
+        <div class="popular-badge" aria-label="Most popular">Most Popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">
+          <span class="price" id="pro-price">₦2,500</span>
+          <span class="period" id="pro-period">/month</span>
+        </div>
+        <p class="plan-note" id="pro-note">Equivalent local currency in supported countries</p>
+        <div class="plan-divider"></div>
+        <ul class="plan-features" aria-label="Pro plan features">
+          <li><span class="feat-icon" aria-hidden="true">✓</span> Everything in Basic</li>
+          <li><span class="feat-icon" aria-hidden="true">✓</span> Unlimited Reports (30-day)</li>
+          <li><span class="feat-icon" aria-hidden="true">✓</span> WhatsApp Integration</li>
+          <li><span class="feat-icon" aria-hidden="true">✓</span> Limited AI Insights</li>
+          <li><span class="feat-icon" aria-hidden="true">✓</span> Unlimited Invoices</li>
+          <li><span class="feat-icon" aria-hidden="true">✓</span> No Ads</li>
+        </ul>
+        <a href="#" class="btn btn-primary" style="width:100%; text-align:center;">Upgrade to Pro</a>
+      </div>
+
+      <!-- BUSINESS -->
+      <div class="pricing-card">
+        <div class="plan-name">Business</div>
+        <div class="plan-price">
+          <span class="price" id="biz-price">₦5,000</span>
+          <span class="period" id="biz-period">/month</span>
+        </div>
+        <p class="plan-note" id="biz-note">Equivalent local currency in supported countries</p>
+        <div class="plan-divider"></div>
+        <ul class="plan-features" aria-label="Business plan features">
+          <li><span class="feat-icon" aria-hidden="true">✓</span> Everything in Pro</li>
+          <li><span class="feat-icon" aria-hidden="true">✓</span> Unlimited Reports</li>
+          <li><span class="feat-icon" aria-hidden="true">✓</span> Unlimited AI Insights</li>
+          <li><span class="feat-icon" aria-hidden="true">✓</span> Voice Entry</li>
+          <li><span class="feat-icon" aria-hidden="true">✓</span> Multi-Store Management</li>
+          <li><span class="feat-icon" aria-hidden="true">✓</span> Priority Support</li>
+          <li><span class="feat-icon" aria-hidden="true">✓</span> No Ads</li>
+        </ul>
+        <a href="#" class="btn btn-ghost" style="width:100%; text-align:center;">Go Business</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     S5 — COUNTRIES
+══════════════════════════════════════════════════════════════ -->
+<section id="countries" aria-labelledby="countries-title">
+  <div class="container">
+    <div class="section-header center fade-in">
+      <span class="section-label">Markets</span>
+      <h2 class="section-title" id="countries-title">Where BizPulse operates</h2>
+      <p class="section-sub">Starting with Africa, expanding to Asia. Built to scale across emerging markets.</p>
+    </div>
+
+    <div class="phases-grid stagger-children">
+
+      <div class="phase-card">
+        <div class="phase-label active"><span class="phase-dot"></span> Phase 1 — Live Now</div>
+        <div class="country-list">
+          <div class="country-item">
+            <span class="country-flag" aria-hidden="true">🇳🇬</span>
+            <div class="country-info"><strong>Nigeria</strong><span>NGN · Paystack · Flutterwave</span></div>
+          </div>
+          <div class="country-item">
+            <span class="country-flag" aria-hidden="true">🇬🇭</span>
+            <div class="country-info"><strong>Ghana</strong><span>GHS · MTN MoMo · Vodafone Cash</span></div>
+          </div>
+          <div class="country-item">
+            <span class="country-flag" aria-hidden="true">🇰🇪</span>
+            <div class="country-info"><strong>Kenya</strong><span>KES · M-Pesa · Equity Bank</span></div>
+          </div>
+          <div class="country-item">
+            <span class="country-flag" aria-hidden="true">🇿🇦</span>
+            <div class="country-info"><strong>South Africa</strong><span>ZAR · SnapScan · Ozow</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-label soon"><span class="phase-dot"></span> Phase 2 — Coming 2025</div>
+        <div class="country-list">
+          <div class="country-item">
+            <span class="country-flag" aria-hidden="true">🇺🇬</span>
+            <div class="country-info"><strong>Uganda</strong><span>UGX · Airtel Money · MTN MoMo</span></div>
+          </div>
+          <div class="country-item">
+            <span class="country-flag" aria-hidden="true">🇹🇿</span>
+            <div class="country-info"><strong>Tanzania</strong><span>TZS · Vodacom M-Pesa · Tigopesa</span></div>
+          </div>
+          <div class="country-item">
+            <span class="country-flag" aria-hidden="true">🇷🇼</span>
+            <div class="country-info"><strong>Rwanda</strong><span>RWF · MTN MoMo · Airtel Money</span></div>
+          </div>
+          <div class="country-item">
+            <span class="country-flag" aria-hidden="true">🇿🇲</span>
+            <div class="country-info"><strong>Zambia</strong><span>ZMW · Zoona · MTN MoMo</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-label future"><span class="phase-dot"></span> Phase 3 — Asia 2026</div>
+        <div class="country-list">
+          <div class="country-item">
+            <span class="country-flag" aria-hidden="true">🇮🇳</span>
+            <div class="country-info"><strong>India</strong><span>INR · UPI · Razorpay</span></div>
+          </div>
+          <div class="country-item">
+            <span class="country-flag" aria-hidden="true">🇵🇰</span>
+            <div class="country-info"><strong>Pakistan</strong><span>PKR · JazzCash · EasyPaisa</span></div>
+          </div>
+          <div class="country-item">
+            <span class="country-flag" aria-hidden="true">🇧🇩</span>
+            <div class="country-info"><strong>Bangladesh</strong><span>BDT · bKash · Nagad</span></div>
+          </div>
+          <div class="country-item">
+            <span class="country-flag" aria-hidden="true">🇵🇭</span>
+            <div class="country-info"><strong>Philippines</strong><span>PHP · GCash · Maya</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     S6 — PRODUCT PREVIEW
+══════════════════════════════════════════════════════════════ -->
+<section id="preview" aria-labelledby="preview-title">
+  <div class="container">
+    <div class="section-header center fade-in">
+      <span class="section-label">Product Preview</span>
+      <h2 class="section-title" id="preview-title">See it in action</h2>
+      <p class="section-sub">A glimpse of the BizPulse dashboard — designed for clarity on any screen.</p>
+    </div>
+
+    <div class="preview-wrapper fade-in">
+      <div class="preview-glow" aria-hidden="true"></div>
+
+      <!-- Info column (visible on desktop) -->
+      <div class="preview-info" style="display:none;" aria-hidden="true">
+        <span class="section-label">Dashboard</span>
+        <h3 class="section-title" style="font-size:2rem;">Your business at a glance</h3>
+        <p style="color:var(--muted); font-size:.95rem; line-height:1.7; margin-top:12px;">
+          Every key metric surfaced front-and-center. No digging through menus — just open the app and know exactly where you stand.
+        </p>
+        <ul class="preview-features">
+          <li>Today's revenue tracked in real time</li>
+          <li>Inventory value with low-stock alerts</li>
+          <li>Weekly revenue chart at a glance</li>
+          <li>AI insights delivered every morning</li>
+        </ul>
+      </div>
+
+      <!-- Phone mockup -->
+      <div class="phone-frame" role="img" aria-label="BizPulse mobile app screenshot">
+        <div class="phone-statusbar" aria-hidden="true">
+          <span class="statusbar-time">9:41</span>
+          <div class="statusbar-icons">
+            <span>●●●</span>
+            <span>WiFi</span>
+            <span>🔋</span>
+          </div>
+        </div>
+        <div class="phone-screen">
+
+          <div class="app-header">
+            <div class="app-logo">Biz<span>Pulse</span></div>
+            <div class="app-notif" aria-label="3 notifications">
+              🔔
+              <span class="app-notif-dot"></span>
+            </div>
+          </div>
+
+          <p class="app-greeting">Good morning,</p>
+          <p class="app-greeting-name">Amara's Fashion Store 👗</p>
+
+          <div class="metric-cards-row">
+            <div class="metric-card">
+              <div class="metric-label">Today's Sales</div>
+              <div class="metric-val">₦84,500</div>
+              <div class="metric-trend up">↑ 12% vs yesterday</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Inventory Value</div>
+              <div class="metric-val">₦2.1M</div>
+              <div class="metric-trend down">↓ 3 items low</div>
+            </div>
+            <div class="metric-card full">
+              <div class="metric-label">Net Profit Today</div>
+              <div class="metric-val green">₦31,200</div>
+              <div class="metric-trend up">↑ 8.4% margin</div>
+            </div>
+          </div>
+
+          <div class="chart-placeholder" aria-label="Weekly revenue chart">
+            <div class="chart-header">
+              <span class="chart-title">Weekly Revenue</span>
+              <span class="chart-period">This Week</span>
+            </div>
+            <div class="chart-bars" aria-hidden="true" id="chart-bars">
+              <!-- bars injected by JS -->
+            </div>
+          </div>
+
+          <div class="ai-insight-card" role="region" aria-label="AI insight">
+            <div class="ai-insight-header">
+              <span class="ai-icon">✦</span>
+              <span class="ai-label">AI Insight</span>
+            </div>
+            <p class="ai-text">Your dress sales peak on Fridays. Consider restocking floral prints by Thursday to avoid stockouts this weekend.</p>
+          </div>
+
+          <div class="alert-card" role="alert">
+            <span class="alert-icon">⚠️</span>
+            <p class="alert-text"><strong>Low Stock Alert:</strong> Ankara fabric (3 left), Blue denim jeans (1 left). Reorder now.</p>
+          </div>
+
+        </div><!-- /phone-screen -->
+      </div><!-- /phone-frame -->
+    </div><!-- /preview-wrapper -->
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     S7 — FINAL CTA
+══════════════════════════════════════════════════════════════ -->
+<section id="final-cta" aria-labelledby="final-cta-title">
+  <div class="container cta-content">
+    <div class="fade-in">
+      <span class="section-label">Get Started</span>
+      <h2 class="cta-title" id="final-cta-title">Ready to Grow Your Business?</h2>
+      <p class="cta-desc">Join thousands of business owners using BizPulse to track sales, manage inventory, and make smarter decisions.</p>
+      <div class="cta-buttons">
+        <a href="#pricing" class="btn btn-primary btn-lg">Start Free</a>
+        <a href="#pricing" class="btn btn-ghost btn-lg">View Plans</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════════════════════ -->
+<footer role="contentinfo">
+  <div class="footer-inner">
+    <div class="footer-top">
+
+      <div class="footer-brand">
+        <div class="logo">Biz<span>Pulse</span></div>
+        <div class="tagline">Track. Manage. Grow.</div>
+        <p>The mobile-first business management platform built for SMEs in Africa and beyond.</p>
+      </div>
+
+      <div class="footer-links-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#value">Features</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#preview">Preview</a></li>
+          <li><a href="#countries">Markets</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">WhatsApp Support</a></li>
+          <li><a href="#">Status</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2025 BizPulse. All rights reserved.</p>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Cookies</a>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════════════ -->
+<script>
+  // ── Hamburger menu ─────────────────────────────────────────
+  const nav = document.getElementById('main-nav');
+  const hamburger = document.getElementById('hamburger');
+
+  hamburger.addEventListener('click', () => {
+    const isOpen = nav.classList.toggle('open');
+    hamburger.setAttribute('aria-expanded', isOpen);
+  });
+  hamburger.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); hamburger.click(); }
+  });
+
+  // Close menu on nav link click (mobile)
+  nav.querySelectorAll('.nav-links a, .nav-cta a').forEach(link => {
+    link.addEventListener('click', () => nav.classList.remove('open'));
+  });
+
+
+  // ── Show desktop preview info column ───────────────────────
+  function updatePreviewLayout() {
+    const info = document.querySelector('.preview-info');
+    if (window.innerWidth >= 768) {
+      info.style.display = 'block';
+      info.removeAttribute('aria-hidden');
+    } else {
+      info.style.display = 'none';
+      info.setAttribute('aria-hidden', 'true');
+    }
+  }
+  updatePreviewLayout();
+  window.addEventListener('resize', updatePreviewLayout);
+
+
+  // ── Chart bars ─────────────────────────────────────────────
+  const chartBars = document.getElementById('chart-bars');
+  const weekData  = [62, 48, 75, 55, 84, 70, 91]; // % height
+  const days      = ['M','T','W','T','F','S','S'];
+  weekData.forEach((val, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'chart-bar' + (i === 6 ? ' active' : '');
+    bar.style.height = val + '%';
+    bar.setAttribute('title', days[i] + ': ' + val + '% of peak');
+    bar.setAttribute('role', 'img');
+    bar.setAttribute('aria-label', days[i] + ': ' + val + '% of weekly peak revenue');
+    chartBars.appendChild(bar);
+  });
+
+
+  // ── Billing toggle ─────────────────────────────────────────
+  const toggle      = document.getElementById('billing-toggle');
+  const monthLabel  = document.getElementById('monthly-label');
+  const annualLabel = document.getElementById('annual-label');
+
+  const prices = {
+    monthly: { pro: '₦2,500', biz: '₦5,000', period: '/month', note: 'Equivalent local currency in supported countries' },
+    annual:  { pro: '₦2,000', biz: '₦4,000', period: '/month', note: 'Billed annually · Save 20% · Equivalent local currency in supported countries' },
+  };
+
+  let isAnnual = false;
+
+  function setBilling(annual) {
+    isAnnual = annual;
+    toggle.classList.toggle('on', annual);
+    toggle.setAttribute('aria-checked', annual);
+    monthLabel.classList.toggle('active', !annual);
+    annualLabel.classList.toggle('active', annual);
+
+    const p = annual ? prices.annual : prices.monthly;
+    document.getElementById('pro-price').textContent  = p.pro;
+    document.getElementById('pro-period').textContent  = p.period;
+    document.getElementById('pro-note').textContent    = p.note;
+    document.getElementById('biz-price').textContent  = p.biz;
+    document.getElementById('biz-period').textContent  = p.period;
+    document.getElementById('biz-note').textContent    = p.note;
+  }
+
+  toggle.addEventListener('click',  () => setBilling(!isAnnual));
+  toggle.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setBilling(!isAnnual); }
+  });
+
+
+  // ── Scroll animations ──────────────────────────────────────
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        // Only unobserve non-stagger elements; stagger can stay observed
+        if (!entry.target.classList.contains('stagger-children')) {
+          io.unobserve(entry.target);
+        }
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.fade-in, .stagger-children').forEach(el => io.observe(el));
+
+
+  // ── Sticky nav shadow on scroll ───────────────────────────
+  window.addEventListener('scroll', () => {
+    nav.style.boxShadow = window.scrollY > 10 ? '0 4px 40px rgba(0,0,0,.6)' : 'none';
+  }, { passive: true });
+</script>
+
+</body>
+</html>
